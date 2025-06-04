@@ -197,3 +197,13 @@
     cursor: pointer;
     font-size: 1.3rem; 
 }
+
+.auth-form .input-group .toggle-password {
+    position: absolute;
+    right: 18px; 
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted-light);
+    cursor: pointer;
+    font-size: 1.3rem; 
+}
