@@ -49,7 +49,7 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config); 
+        const response = await fetch(endpoint, config);
         if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('authToken');
             localStorage.removeItem('username');
