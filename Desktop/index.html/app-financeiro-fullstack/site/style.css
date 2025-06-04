@@ -1,0 +1,589 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Merriweather+Sans:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg-deep-dark: #2C2A28;
+  --bg-dark: #3E3C3A;
+  --bg-medium-dark: #52504E;
+  --bg-subtle-dark: #454341;
+  --text-primary-light: #D4D2D0;
+  --text-secondary-light: #A8A6A4;
+  --text-muted-light: #7A7876;
+  --accent-earthy-orange: #D97746;
+  --accent-earthy-orange-hover: #C36A3F;
+  --accent-earthy-orange-active: #AE5D38;
+  --accent-muted-brown: #8C6E5D;
+  --accent-dark-red: #B75656;
+  --accent-dark-red-hover: #A34A4A;
+  --border-color-dark: #5A5856;
+  --border-color-subtle-dark: #4A4846;
+  --font-primary: 'Roboto', sans-serif;
+  --font-secondary: 'Merriweather Sans', sans-serif;
+  --border-radius-sm: 3px;
+  --border-radius-md: 5px;
+  --shadow-dark-sm: 0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-dark-md: 0 5px 10px rgba(0, 0, 0, 0.35);
+  --focus-ring-dark: 0 0 0 2px var(--bg-dark), 0 0 0 4px var(--accent-earthy-orange);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-deep-dark);
+  color: var(--text-primary-light);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-top: 70px;
+}
+
+.app-nav {
+  background-color: var(--bg-dark);
+  padding: 0 25px;
+  display: flex;
+  justify-content: space-between; 
+  /* gap: 20px; */ /* Original, pode ser removido ou mantido */
+  border-bottom: 1px solid var(--border-color-dark);
+  box-shadow: var(--shadow-dark-sm);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  height: 60px;
+  align-items: center;
+}
+
+.nav-link {
+  padding: 10px 15px;
+  color: var(--text-secondary-light);
+  text-decoration: none;
+  font-family: var(--font-secondary);
+  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--text-primary-light);
+  background-color: var(--bg-subtle-dark);
+}
+
+.nav-link.active {
+  color: var(--accent-earthy-orange);
+  border-bottom-color: var(--accent-earthy-orange);
+  font-weight: 700;
+}
+
+.view-container {
+  display: none;
+  padding: 25px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.view-container.active-view {
+  display: flex;
+}
+
+#viewInicio .container {
+  text-align: center;
+}
+
+.welcome-text {
+  font-size: 1.1rem;
+  color: var(--text-secondary-light);
+  margin: 20px 0 30px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.8;
+}
+
+.cta-button {
+  background-color: var(--accent-earthy-orange);
+  color: var(--bg-deep-dark);
+  font-weight: 700;
+  border: 1px solid var(--accent-earthy-orange);
+  padding: 12px 25px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  font-family: var(--font-secondary);
+}
+
+.cta-button:hover {
+  background-color: var(--accent-earthy-orange-hover);
+  border-color: var(--accent-earthy-orange-hover);
+}
+.cta-button:active {
+  background-color: var(--accent-earthy-orange-active);
+  border-color: var(--accent-earthy-orange-active);
+}
+
+.container {
+  background-color: var(--bg-dark);
+  padding: 30px 35px;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-dark-md);
+  width: 100%;
+  max-width: 1000px;
+  border: 1px solid var(--border-color-dark);
+}
+
+h1 {
+  text-align: center;
+  color: var(--text-primary-light);
+  margin-bottom: 30px;
+  font-weight: 500;
+  font-family: var(--font-secondary);
+  font-size: 2rem;
+}
+
+form {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr auto;
+  gap: 15px;
+  margin-bottom: 30px;
+  align-items: center;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"] {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color-dark);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.95rem;
+  background-color: var(--bg-medium-dark);
+  color: var(--text-primary-light);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input::placeholder {
+  color: var(--text-secondary-light);
+  opacity: 1;
+}
+
+form input:focus {
+  outline: none;
+  border-color: var(--accent-earthy-orange);
+  box-shadow: var(--focus-ring-dark);
+}
+
+form input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(75%) sepia(10%) saturate(500%) hue-rotate(340deg) brightness(95%) contrast(90%);
+}
+
+form button[type="submit"] {
+  background-color: var(--accent-earthy-orange);
+  color: var(--bg-deep-dark);
+  font-weight: 700;
+  border: 1px solid var(--accent-earthy-orange);
+  padding: 10px 20px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+form button[type="submit"]:hover {
+  background-color: var(--accent-earthy-orange-hover);
+  border-color: var(--accent-earthy-orange-hover);
+}
+
+form button[type="submit"]:active {
+  background-color: var(--accent-earthy-orange-active);
+  border-color: var(--accent-earthy-orange-active);
+}
+
+.filter {
+  margin-bottom: 25px;
+}
+
+.filter label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: var(--text-secondary-light);
+  font-size: 0.9rem;
+  font-family: var(--font-secondary);
+}
+
+.month-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.month {
+  padding: 7px 14px;
+  border: 1px solid var(--border-color-subtle-dark);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  background-color: var(--bg-medium-dark);
+  color: var(--text-secondary-light);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  user-select: none;
+}
+
+.month:hover {
+  background-color: var(--bg-subtle-dark);
+  color: var(--accent-earthy-orange);
+  border-color: var(--accent-muted-brown);
+}
+
+.month.active {
+  background-color: var(--accent-earthy-orange);
+  color: var(--bg-deep-dark);
+  border-color: var(--accent-earthy-orange);
+  font-weight: 700;
+}
+
+.month.active:hover {
+  background-color: var(--accent-earthy-orange-hover);
+  border-color: var(--accent-earthy-orange-hover);
+}
+
+#total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-secondary);
+  margin: 30px 0;
+  color: var(--text-primary-light);
+  text-align: left;
+  padding: 12px 18px;
+  background-color: var(--bg-subtle-dark);
+  border-radius: var(--border-radius-sm);
+  border-left: 4px solid var(--accent-earthy-orange);
+}
+
+#tabelaGastos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-color-dark);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+#tabelaGastos th,
+#tabelaGastos td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color-subtle-dark);
+}
+
+#tabelaGastos th {
+  background-color: var(--bg-medium-dark);
+  color: var(--text-secondary-light);
+  font-weight: 700;
+  font-family: var(--font-secondary);
+  white-space: nowrap;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#tabelaGastos tbody tr:last-child td {
+  border-bottom: none;
+}
+
+#tabelaGastos tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+#tabelaGastos tbody tr:hover {
+  background-color: var(--bg-subtle-dark);
+}
+
+#tabelaGastos td.valor {
+  text-align: right;
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+#tabelaGastos td.data {
+  text-align: center;
+  color: var(--text-secondary-light);
+}
+
+#tabelaGastos td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.edit-btn,
+.remover {
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 6px 9px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+.edit-btn {
+  color: var(--text-muted-light);
+}
+.edit-btn:hover {
+  background-color: var(--bg-subtle-dark);
+  color: var(--accent-earthy-orange);
+}
+.edit-btn i {
+  font-size: 1.1em;
+  display: block;
+}
+
+.remover {
+  color: var(--accent-dark-red);
+  font-weight: 700;
+}
+.remover:hover {
+  background-color: rgba(183, 86, 86, 0.15);
+  color: var(--accent-dark-red-hover);
+}
+
+td.descricao span, td.valor span, td.data span {
+  vertical-align: middle;
+}
+
+.fixed-expenses-section {
+  background-color: var(--bg-subtle-dark);
+  padding: 20px;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color-subtle-dark);
+}
+
+.fixed-expenses-section h2,
+.fixed-expenses-section h3 {
+  color: var(--text-primary-light);
+  font-family: var(--font-secondary);
+  margin-bottom: 15px;
+}
+.fixed-expenses-section h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+.fixed-expenses-section h3 {
+  font-size: 1.1rem;
+  color: var(--text-secondary-light);
+  margin-top: 20px;
+}
+
+#formGastoFixo {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#formGastoFixo input[type="text"],
+#formGastoFixo input[type="number"] {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color-dark);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.95rem;
+  background-color: var(--bg-medium-dark);
+  color: var(--text-primary-light);
+}
+#formGastoFixo input::placeholder {
+  color: var(--text-secondary-light);
+}
+#formGastoFixo input:focus {
+  outline: none;
+  border-color: var(--accent-earthy-orange);
+  box-shadow: var(--focus-ring-dark);
+}
+
+#formGastoFixo button[type="submit"] {
+  background-color: var(--accent-muted-brown);
+  color: var(--text-primary-light);
+  font-weight: 700;
+  border: 1px solid var(--accent-muted-brown);
+  padding: 10px 15px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#formGastoFixo button[type="submit"]:hover {
+  background-color: #7a6150;
+}
+
+#listaGastosFixos {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+#listaGastosFixos li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--bg-medium-dark);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid var(--border-color-subtle-dark);
+}
+
+#listaGastosFixos li .descricao-fixo {
+  flex-grow: 1;
+  color: var(--text-primary-light);
+}
+#listaGastosFixos li .valor-fixo {
+  margin-left: 15px;
+  font-weight: bold;
+  color: var(--text-secondary-light);
+}
+
+#listaGastosFixos .remover-fixo {
+  background-color: transparent;
+  color: var(--accent-dark-red);
+  border: none;
+  padding: 5px 8px;
+  margin-left: 15px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--border-radius-sm);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+#listaGastosFixos .remover-fixo:hover {
+  background-color: rgba(183, 86, 86, 0.15);
+  color: var(--accent-dark-red-hover);
+}
+
+#btnRepassarFixos {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border-color-dark);
+  margin: 35px 0;
+}
+
+#viewControleGastos h2:not(.fixed-expenses-section h2) {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: var(--font-secondary);
+}
+
+.danger-button {
+  background-color: var(--accent-dark-red);
+  color: var(--text-primary-light);
+  font-weight: 700;
+  border: 1px solid var(--accent-dark-red);
+  padding: 10px 20px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  display: block;
+  width: auto;
+  margin: 20px auto 0;
+  font-family: var(--font-secondary);
+}
+.danger-button:hover {
+  background-color: var(--accent-dark-red-hover);
+  border-color: var(--accent-dark-red-hover);
+}
+
+
+@media (max-width: 850px) {
+  form {
+    grid-template-columns: 1fr 1fr;
+  }
+  form input[type="text"] {
+    grid-column: 1 / -1;
+  }
+  form button[type="submit"] {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  #formGastoFixo {
+    grid-template-columns: 1fr;
+  }
+  #formGastoFixo button[type="submit"] {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 650px) {
+  body {
+    padding-top: 100px;
+  }
+  .app-nav {
+    flex-direction: column;
+    height: auto;
+    padding-bottom: 10px;
+  }
+  .nav-link {
+    width: 100%;
+    text-align: center;
+  }
+  .view-container.active-view {
+     padding: 15px;
+  }
+  .container {
+    padding: 25px 20px;
+  }
+  h1 {
+    font-size: 1.75rem;
+  }
+  form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #total {
+    font-size: 1.15rem;
+    padding: 10px 14px;
+  }
+  #tabelaGastos th,
+  #tabelaGastos td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  .edit-btn, .remover {
+    padding: 5px 7px;
+  }
+  .edit-btn i {
+    font-size: 1em;
+  }
+  .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 20px;
+      border: 1px solid var(--border-color-dark);
+      border-radius: var(--border-radius-sm);
+  }
+  .danger-button {
+    width: 100%;
+  }
+}

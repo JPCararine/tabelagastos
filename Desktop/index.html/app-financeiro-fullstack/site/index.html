@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Controle de Gastos</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- script.js movido para o final do body -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+
+  <nav class="app-nav">
+    <div>
+        <a href="#" id="navInicio" class="nav-link active">Início</a>
+        <a href="#" id="navControleGastos" class="nav-link">Controle de Gastos</a>
+    </div>
+    <div style="display: flex; align-items: center;">
+        <span id="usernameDisplay" style="color: var(--text-secondary-light); margin-right: 15px;"></span>
+        <button id="logoutBtn" class="cta-button" style="padding: 8px 15px; font-size: 0.9rem; background-color: var(--accent-muted-brown);">Sair</button>
+    </div>
+  </nav>
+  <!-- ... resto do conteúdo do body do seu index.html ... -->
+  <div id="viewInicio" class="view-container active-view">
+    <div class="container">
+      <h1>Bem-vindo ao seu Gerenciador Financeiro!</h1>
+      <p class="welcome-text">
+        Organize suas finanças de forma simples e eficaz. Comece adicionando seus gastos
+        na aba "Controle de Gastos" ou explore as funcionalidades.
+      </p>
+      <button id="goToGastosBtn" class="cta-button">Ir para Controle de Gastos</button>
+    </div>
+  </div>
+
+  <div id="viewControleGastos" class="view-container">
+    <div class="container">
+      <h1>Controle de Gastos</h1>
+
+      <div class="fixed-expenses-section">
+        <h2>Gastos Fixos Mensais (Modelos)</h2>
+        <form id="formGastoFixo"> <!-- Removido onsubmit, será tratado no JS -->
+          <input type="text" id="descricaoFixo" placeholder="Descrição do Gasto Fixo" />
+          <input type="number" id="valorFixo" placeholder="Valor (R$)" step="0.01" />
+          <button type="submit">Adicionar Modelo Fixo</button>
+        </form>
+        <div id="listaGastosFixosContainer">
+          <h3>Lista de Modelos de Gastos Fixos:</h3>
+          <ul id="listaGastosFixos">
+          </ul>
+          <p class="empty-fixed-list" style="display: none;">Nenhum modelo de gasto fixo cadastrado.</p>
+        </div>
+        <button id="btnRepassarFixos" class="cta-button">Repassar Gastos Fixos para os Meses do Ano Atual</button>
+      </div>
+
+      <hr class="section-divider">
+
+      <h2>Adicionar Gasto Variável</h2>
+      <form id="formGastoVariavel"> <!-- Removido onsubmit, será tratado no JS -->
+        <input type="text" id="descricao" placeholder="Descrição do gasto" />
+        <input type="number" id="valor" placeholder="Valor (R$)" step="0.01"/>
+        <input type="date" id="data" />
+        <button type="submit">Adicionar</button>
+      </form>
+
+      <div class="filter">
+        <label for="filtroMes">Filtrar por mês:</label>
+        <div class="month-container">
+          <div class="month" data-month="0">Jan</div>
+          <div class="month" data-month="1">Fev</div>
+          <div class="month" data-month="2">Mar</div>
+          <div class="month" data-month="3">Abr</div>
+          <div class="month" data-month="4">Mai</div>
+          <div class="month" data-month="5">Jun</div>
+          <div class="month" data-month="6">Jul</div>
+          <div class="month" data-month="7">Ago</div>
+          <div class="month" data-month="8">Set</div>
+          <div class="month" data-month="9">Out</div>
+          <div class="month" data-month="10">Nov</div>
+          <div class="month" data-month="11">Dez</div>
+        </div>
+      </div>
+
+      <div id="total">Total do mês: R$ 0,00</div>
+
+      <table id="tabelaGastos">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Valor (R$)</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <!-- Texto e funcionalidade do botão alterados -->
+      <button id="btnLimparTodosGastosUsuario" class="danger-button" style="display: none;">Limpar TODOS os Gastos do Usuário</button>
+
+    </div>
+  </div>
+  <script defer src="script.js"></script>
+</body>
+</html>
