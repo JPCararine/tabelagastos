@@ -1,159 +1,155 @@
 // site/login.js
 
-const loginFormContainer = document.getElementById('login-form-container');
-const registerFormContainer = document.getElementById('register-form-container');
-const showRegisterLink = document.getElementById('showRegister');
-const showLoginLink = document.getElementById('showLogin');
+document.addEventListener('DOMContentLoaded', () => {
+    const loginFormContainer = document.getElementById('login-form-container');
+    const registerFormContainer = document.getElementById('register-form-container');
+    const showRegisterLink = document.getElementById('showRegister');
+    const showLoginLink = document.getElementById('showLogin');
 
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const loginErrorDiv = document.getElementById('loginError');
-const registerErrorDiv = document.getElementById('registerError');
-const registerSuccessDiv = document.getElementById('registerSuccess');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginMessageDiv = document.getElementById('loginMessage'); // Renomeado
+    const registerMessageDiv = document.getElementById('registerMessage'); // Renomeado
 
-// Elementos para "Ver Senha"
-const loginPasswordInput = document.getElementById('loginPassword');
-const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
-const registerPasswordInput = document.getElementById('registerPassword');
-const toggleRegisterPasswordBtn = document.getElementById('toggleRegisterPassword');
+    const loginPasswordInput = document.getElementById('loginPassword');
+    const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
+    const registerPasswordInput = document.getElementById('registerPassword');
+    const toggleRegisterPasswordBtn = document.getElementById('toggleRegisterPassword');
 
-// Função para limpar e esconder todas as mensagens de erro/sucesso
-function hideMessages() {
-    if (loginErrorDiv) {
-        loginErrorDiv.style.display = 'none';
-        loginErrorDiv.textContent = '';
+    function displayMessage(element, message, isError = true) {
+        if (element) {
+            element.textContent = message;
+            element.className = 'message-display'; // Reset classes
+            if (isError) {
+                element.classList.add('error-message');
+            } else {
+                element.classList.add('success-message');
+            }
+            element.style.display = 'block';
+        }
     }
-    if (registerErrorDiv) {
-        registerErrorDiv.style.display = 'none';
-        registerErrorDiv.textContent = '';
+
+    function hideMessages() {
+        if (loginMessageDiv) loginMessageDiv.style.display = 'none';
+        if (registerMessageDiv) registerMessageDiv.style.display = 'none';
     }
-    if (registerSuccessDiv) {
-        registerSuccessDiv.style.display = 'none';
-        registerSuccessDiv.textContent = '';
-    }
-}
 
-// Função para alternar visibilidade da senha
-function togglePasswordVisibility(passwordInput, toggleButton) {
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleButton.classList.remove('fa-eye');
-        toggleButton.classList.add('fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        toggleButton.classList.remove('fa-eye-slash');
-        toggleButton.classList.add('fa-eye');
-    }
-}
-
-// Adiciona listeners aos botões de "Ver Senha"
-// Verifica se os elementos existem antes de adicionar listeners
-if (toggleLoginPasswordBtn && loginPasswordInput) {
-    toggleLoginPasswordBtn.addEventListener('click', () => {
-        togglePasswordVisibility(loginPasswordInput, toggleLoginPasswordBtn);
-    });
-}
-if (toggleRegisterPasswordBtn && registerPasswordInput) {
-    toggleRegisterPasswordBtn.addEventListener('click', () => {
-        togglePasswordVisibility(registerPasswordInput, toggleRegisterPasswordBtn);
-    });
-}
-
-// Redireciona se já estiver logado
-if (localStorage.getItem('authToken')) {
-    window.location.href = 'index.html'; // Assume que index.html está na mesma pasta (site/)
-}
-
-// Listeners para alternar entre formulário de login e registro
-// Verifica se os elementos existem antes de adicionar listeners
-if (showRegisterLink && loginFormContainer && registerFormContainer) {
-    showRegisterLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      loginFormContainer.style.display = 'none';
-      registerFormContainer.style.display = 'block';
-      hideMessages();
-    });
-}
-
-if (showLoginLink && loginFormContainer && registerFormContainer) {
-    showLoginLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      registerFormContainer.style.display = 'none';
-      loginFormContainer.style.display = 'block';
-      hideMessages();
-    });
-}
-
-// Listener para submissão do formulário de login
-// Verifica se os elementos existem antes de adicionar listeners
-if (loginForm && loginPasswordInput) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideMessages();
-      const username = document.getElementById('loginUsername').value; // Pode pegar diretamente aqui
-      const password = loginPasswordInput.value;
-
-      try {
-        const response = await fetch('/auth/login', { // Rota relativa ao servidor que serve a página
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          localStorage.setItem('authToken', data.token);
-          localStorage.setItem('username', data.username);
-          window.location.href = 'index.html';
+    function togglePasswordVisibility(passwordInput, toggleButton) {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.classList.remove('fa-eye');
+            toggleButton.classList.add('fa-eye-slash');
         } else {
-          if(loginErrorDiv) {
-            loginErrorDiv.textContent = data.message || 'Erro no login.';
-            loginErrorDiv.style.display = 'block';
-          }
+            passwordInput.type = 'password';
+            toggleButton.classList.remove('fa-eye-slash');
+            toggleButton.classList.add('fa-eye');
         }
-      } catch (error) {
-        if(loginErrorDiv) {
-            loginErrorDiv.textContent = 'Falha na comunicação com o servidor.';
-            loginErrorDiv.style.display = 'block';
-        }
-        console.error('Erro no login:', error);
-      }
-    });
-}
+    }
 
-// Listener para submissão do formulário de registro
-// Verifica se os elementos existem antes de adicionar listeners
-if (registerForm && registerPasswordInput) {
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideMessages();
-      const username = document.getElementById('registerUsername').value; // Pode pegar diretamente aqui
-      const password = registerPasswordInput.value;
-
-      try {
-        const response = await fetch('/auth/register', { // Rota relativa ao servidor que serve a página
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+    if (toggleLoginPasswordBtn && loginPasswordInput) {
+        toggleLoginPasswordBtn.addEventListener('click', () => {
+            togglePasswordVisibility(loginPasswordInput, toggleLoginPasswordBtn);
         });
-        const data = await response.json();
-        if (response.ok) {
-          if(registerSuccessDiv) {
-            registerSuccessDiv.textContent = 'Usuário registrado com sucesso! Faça o login.';
-            registerSuccessDiv.style.display = 'block';
-          }
-          registerForm.reset();
-        } else {
-          if(registerErrorDiv) {
-            registerErrorDiv.textContent = data.message || 'Erro no registro.';
-            registerErrorDiv.style.display = 'block';
-          }
-        }
-      } catch (error) {
-        if(registerErrorDiv) {
-            registerErrorDiv.textContent = 'Falha na comunicação com o servidor.';
-            registerErrorDiv.style.display = 'block';
-        }
-        console.error('Erro no registro:', error);
-      }
-    });
-}
+    }
+    if (toggleRegisterPasswordBtn && registerPasswordInput) {
+        toggleRegisterPasswordBtn.addEventListener('click', () => {
+            togglePasswordVisibility(registerPasswordInput, toggleRegisterPasswordBtn);
+        });
+    }
+
+    if (localStorage.getItem('authToken')) {
+        window.location.href = 'index.html';
+    }
+
+    if (showRegisterLink && loginFormContainer && registerFormContainer) {
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginFormContainer.style.display = 'none';
+            registerFormContainer.style.display = 'block';
+            hideMessages();
+        });
+    }
+
+    if (showLoginLink && loginFormContainer && registerFormContainer) {
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerFormContainer.style.display = 'none';
+            loginFormContainer.style.display = 'block';
+            hideMessages();
+        });
+    }
+
+    if (loginForm && loginPasswordInput) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+            const username = document.getElementById('loginUsername').value;
+            const password = loginPasswordInput.value;
+
+            if (!username || !password) {
+                displayMessage(loginMessageDiv, "Usuário e senha são obrigatórios.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('username', data.username);
+                    window.location.href = 'index.html';
+                } else {
+                    displayMessage(loginMessageDiv, data.message || 'Erro no login.');
+                }
+            } catch (error) {
+                displayMessage(loginMessageDiv, 'Falha na comunicação com o servidor.');
+                // console.error('Erro no login:', error);
+            }
+        });
+    }
+
+    if (registerForm && registerPasswordInput) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+            const username = document.getElementById('registerUsername').value;
+            const password = registerPasswordInput.value;
+
+            if (!username || !password) {
+                displayMessage(registerMessageDiv, "Usuário e senha são obrigatórios.");
+                return;
+            }
+            if (password.length < 6) {
+                 displayMessage(registerMessageDiv, "A senha deve ter pelo menos 6 caracteres.");
+                return;
+            }
+
+
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    displayMessage(registerMessageDiv, 'Usuário registrado com sucesso! Faça o login.', false);
+                    registerForm.reset();
+                     // Opcional: redirecionar para login ou mostrar formulário de login
+                    // setTimeout(() => {
+                    //    showLoginLink.click();
+                    // }, 2000);
+                } else {
+                    displayMessage(registerMessageDiv, data.message || 'Erro no registro.');
+                }
+            } catch (error) {
+                displayMessage(registerMessageDiv, 'Falha na comunicação com o servidor.');
+                // console.error('Erro no registro:', error);
+            }
+        });
+    }
+});
