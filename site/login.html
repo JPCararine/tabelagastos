@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Controle de Gastos</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+<body>
+  <div class="app-title-login">Seu Gerenciador</div>
+
+  <div class="auth-container">
+    <div id="login-form-container">
+      <h1>Login</h1>
+      <form id="loginForm" class="auth-form">
+        <div id="loginError" class="error-message"></div>
+        <div class="input-group">
+            <i class="fas fa-user input-icon-left"></i>
+            <input type="text" id="loginUsername" placeholder="Nome de Usuário" required />
+        </div>
+        <div class="input-group">
+            <i class="fas fa-lock input-icon-left"></i>
+            <input type="password" id="loginPassword" placeholder="Senha" required />
+            <i class="fas fa-eye toggle-password" id="toggleLoginPassword"></i>
+        </div>
+        <button type="submit" class="cta-button">Entrar</button>
+      </form>
+      <p class="toggle-form">Não tem uma conta? <a href="#" id="showRegister">Registre-se</a></p>
+    </div>
+
+    <div id="register-form-container" style="display: none;">
+      <h1>Registrar</h1>
+      <form id="registerForm" class="auth-form">
+        <div id="registerError" class="error-message"></div>
+        <div id="registerSuccess" class="error-message"></div>
+        <div class="input-group">
+            <i class="fas fa-user-plus input-icon-left"></i>
+            <input type="text" id="registerUsername" placeholder="Escolha um Usuário" required />
+        </div>
+        <div class="input-group">
+            <i class="fas fa-key input-icon-left"></i>
+            <input type="password" id="registerPassword" placeholder="Crie uma Senha" required />
+            <i class="fas fa-eye toggle-password" id="toggleRegisterPassword"></i>
+        </div>
+        <button type="submit" class="cta-button">Registrar</button>
+      </form>
+      <p class="toggle-form">Já tem uma conta? <a href="#" id="showLogin">Faça Login</a></p>
+    </div>
+  </div>
+
+  <script defer src="login.js"></script>
+</body>
+</html>
