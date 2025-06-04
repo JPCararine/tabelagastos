@@ -1,4 +1,3 @@
-// site/login.js
 
 const loginFormContainer = document.getElementById('login-form-container');
 const registerFormContainer = document.getElementById('register-form-container');
@@ -11,13 +10,13 @@ const loginErrorDiv = document.getElementById('loginError');
 const registerErrorDiv = document.getElementById('registerError');
 const registerSuccessDiv = document.getElementById('registerSuccess');
 
-// Elementos para "Ver Senha"
+
 const loginPasswordInput = document.getElementById('loginPassword');
 const toggleLoginPasswordBtn = document.getElementById('toggleLoginPassword');
 const registerPasswordInput = document.getElementById('registerPassword');
 const toggleRegisterPasswordBtn = document.getElementById('toggleRegisterPassword');
 
-// Função para limpar e esconder todas as mensagens de erro/sucesso
+
 function hideMessages() {
     if (loginErrorDiv) {
         loginErrorDiv.style.display = 'none';

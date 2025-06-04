@@ -1,15 +1,13 @@
-// script.js
 
-// --- Variáveis Globais & Constantes ---
-let gastos = []; // Todas as despesas do usuário (variáveis e fixas repassadas)
-let gastosFixosTemplates = []; // Modelos para despesas fixas
+let gastos = []; 
+let gastosFixosTemplates = []; 
 const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 const anoAtual = new Date().getFullYear();
 let mesFiltroAtivo = new Date().getMonth();
 
-const API_BASE_URL = 'http://localhost:3000'; // Mantido por clareza, mas não estritamente necessário se servido da mesma origem
+const API_BASE_URL = 'http://localhost:3000'; 
 
-// --- Elementos DOM ---
+
 const navInicioLink = document.getElementById('navInicio');
 const navControleGastosLink = document.getElementById('navControleGastos');
 const viewInicio = document.getElementById('viewInicio');
@@ -32,7 +30,7 @@ const dataInput = document.getElementById('data');
 
 const btnLimparTodosGastosUsuario = document.getElementById('btnLimparTodosGastosUsuario');
 
-// --- Helper da API ---
+
 async function fetchAPI(endpoint, method = 'GET', body = null) {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -51,7 +49,7 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config); // Usando API_BASE_URL
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config); 
         if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('authToken');
             localStorage.removeItem('username');
@@ -75,16 +73,16 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     }
 }
 
-// --- Autenticação & Inicialização ---
+
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('authToken');
     const username = localStorage.getItem('username');
 
-    if (!token && window.location.pathname !== '/login.html') { // Não redireciona se já estiver na login.html
+    if (!token && window.location.pathname !== '/login.html') { 
         window.location.href = 'login.html';
         return;
     }
-     if (token && window.location.pathname === '/login.html'){ // Se tem token e está no login, vai pro index
+     if (token && window.location.pathname === '/login.html'){ 
         window.location.href = 'index.html';
         return;
     }
@@ -94,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         usernameDisplay.textContent = `Olá, ${username}!`;
     }
 
-    // Só executa o resto se não for a página de login
+    
     if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
         mostrarView('viewInicio');
         await loadInitialData();
@@ -240,13 +238,7 @@ function atualizarVisibilidadeBotaoLimpar() {
   }
 }
 
-// Em site/script.js
 
-// ... (outras partes do script.js) ...
-
-// Em site/script.js
-
-// ... (início do script.js, incluindo variáveis globais e constantes como API_BASE_URL, meses, anoAtual, mesFiltroAtivo, etc.) ...
 
 async function adicionarGasto() {
   if (!descricaoInput || !valorInput || !dataInput) {
@@ -283,9 +275,7 @@ async function adicionarGasto() {
   }
 }
 
-// Em site/script.js
 
-// ... (início do script.js, incluindo variáveis globais e constantes como API_BASE_URL, meses, anoAtual, mesFiltroAtivo, etc.) ...
 
 async function adicionarGasto() {
   if (!descricaoInput || !valorInput || !dataInput) {
@@ -310,15 +300,14 @@ async function adicionarGasto() {
   console.log("Gasto retornado pela API:", novoGasto);
 
   if (novoGasto) {
-    // Padroniza o objeto para ter 'valor' (usado pelo frontend) e 'date'
-    // e garante que todas as outras propriedades da API sejam mantidas.
+    
     const gastoParaArray = {
         id: novoGasto.id,
         user_id: novoGasto.user_id,
         description: novoGasto.description,
-        value: novoGasto.value, // Mantém o 'value' original da API
-        valor: novoGasto.value, // Adiciona 'valor' para consistência com a renderização
-        date: novoGasto.data     // Garante que 'date' está aqui
+        value: novoGasto.value, 
+        valor: novoGasto.value, 
+        date: novoGasto.data     
     };
     gastos.push(gastoParaArray);
     console.log("Array gastos após push:", JSON.parse(JSON.stringify(gastos)));
@@ -348,18 +337,18 @@ function renderizarGastosETotal() {
   console.log("Gastos ordenados para renderização:", JSON.parse(JSON.stringify(gastosOrdenados)));
 
   gastosOrdenados.forEach((g) => {
-    console.log("Objeto g no início do forEach:", JSON.parse(JSON.stringify(g))); // LOG A
-    console.log("Tipo de g.date:", typeof g.date, "Valor de g.date:", g.date); // LOG B
-    console.log("Condição '!g.date' resulta em:", !g.date); // LOG C
+    console.log("Objeto g no início do forEach:", JSON.parse(JSON.stringify(g)));
+    console.log("Tipo de g.date:", typeof g.date, "Valor de g.date:", g.date); 
+    console.log("Condição '!g.date' resulta em:", !g.date);
     
-    // Verifica explicitamente se g.date é uma string e não está vazia
+    
     if (typeof g.date !== 'string' || g.date.trim() === '') {
         console.warn("Gasto com 'date' inválida (não é string ou está vazia):", g);
         return; 
     }
     const dataGasto = new Date(g.date + 'T00:00:00');
 
-    // Verifica se a dataGasto é válida após a conversão
+    
     if (isNaN(dataGasto.getTime())) {
         console.warn("Objeto Date inválido criado a partir de g.date:", g.date, "Gasto:", g);
         return;
@@ -441,31 +430,30 @@ function renderizarGastosETotal() {
   let totalMes = 0;
   let countGastosNoMesAtual = 0;
 
-  // Copia do array gastos para ordenação, para não modificar o original diretamente se não necessário
+  
   const gastosOrdenados = [...gastos].sort((a, b) => new Date(a.date) - new Date(b.date));
-  console.log("Gastos ordenados para renderização:", JSON.parse(JSON.stringify(gastosOrdenados))); // LOG 2
+  console.log("Gastos ordenados para renderização:", JSON.parse(JSON.stringify(gastosOrdenados))); 
 
   gastosOrdenados.forEach((g) => {
-    // Certifique-se de que g.date existe e é uma string de data válida
+    
     if (!g.date) {
         console.warn("Gasto sem data encontrado:", g);
-        return; // Pula este gasto se não tiver data
+        return; 
     }
-    // Adiciona 'T00:00:00' para evitar problemas de fuso horário ao converter para objeto Date só com a data.
-    // Isso garante que a data seja interpretada como o início do dia no fuso horário local.
+   
     const dataGasto = new Date(g.date + 'T00:00:00');
 
-    // LOGS IMPORTANTES PARA A CONDIÇÃO DE FILTRO:
+    
     console.log(
         "Verificando gasto:", g.description,
         "Data do gasto:", g.date,
         "Objeto Date:", dataGasto.toISOString(),
         "Mês do gasto (0-11):", dataGasto.getMonth(),
         "Ano do gasto:", dataGasto.getFullYear(),
-        "Condição do Mês:", dataGasto.getMonth() === parseInt(mesFiltroAtivo), // parseInt aqui é uma boa prática
+        "Condição do Mês:", dataGasto.getMonth() === parseInt(mesFiltroAtivo), 
         "Condição do Ano:", dataGasto.getFullYear() === anoAtual,
         "Passou no filtro?:", (dataGasto.getMonth() === parseInt(mesFiltroAtivo) && dataGasto.getFullYear() === anoAtual)
-    ); // LOG 3
+    ); 
 
     if (dataGasto && dataGasto.getMonth() === parseInt(mesFiltroAtivo) && dataGasto.getFullYear() === anoAtual) {
       countGastosNoMesAtual++;
@@ -502,9 +490,9 @@ function renderizarGastosETotal() {
     }
   });
 
-  console.log("Total de gastos renderizados para o mês:", countGastosNoMesAtual); // LOG 4
+  console.log("Total de gastos renderizados para o mês:", countGastosNoMesAtual); 
 
-  const mesSelecionadoNome = meses[parseInt(mesFiltroAtivo)]; // Garante que mesFiltroAtivo é número
+  const mesSelecionadoNome = meses[parseInt(mesFiltroAtivo)]; 
   const totalElement = document.getElementById('total');
   if (totalElement) {
       totalElement.innerText = `Total de ${mesSelecionadoNome}: R$ ${totalMes.toFixed(2)}`;
@@ -520,7 +508,7 @@ function renderizarGastosETotal() {
   atualizarVisibilidadeBotaoLimpar();
 }
 
-// ... (resto do script.js) ...
+
 
 async function editarCampo(gastoId, campo, valorAtual) {
    console.log("Frontend: Tentando editar campo para gastoId:", gastoId, "Campo:", campo, "Valor Atual:", valorAtual);
@@ -530,7 +518,7 @@ async function editarCampo(gastoId, campo, valorAtual) {
         return;
     }
 
-    let novoValorPrompt; // Renomeado para evitar conflito com a variável 'valor' do escopo externo
+    let novoValorPrompt; 
     let updatedData = { description: gasto.description, value: gasto.valor, date: gasto.date };
 
     if (campo === 'descricao') {

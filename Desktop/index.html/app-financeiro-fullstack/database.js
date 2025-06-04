@@ -1,4 +1,4 @@
-// database.js
+
 const sqlite3 = require('sqlite3').verbose();
 const DBSOURCE = "db.sqlite";
 
@@ -35,7 +35,7 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
             );
         `, (err) => {
             if (err) {
-                // Tabela já criada ou outro erro
+                
                 console.error("Erro ao criar tabelas:", err.message);
             } else {
                 console.log("Tabelas verificadas/criadas com sucesso.");

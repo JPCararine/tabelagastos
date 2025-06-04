@@ -45,7 +45,7 @@ body {
   padding: 0 25px;
   display: flex;
   justify-content: space-between; 
-  /* gap: 20px; */ /* Original, pode ser removido ou mantido */
+  
   border-bottom: 1px solid var(--border-color-dark);
   box-shadow: var(--shadow-dark-sm);
   position: fixed;

@@ -1,4 +1,4 @@
-    /* Estilos específicos para a página de login */
+   
     body {
       display: flex;
       flex-direction: column;
@@ -50,12 +50,12 @@
     .auth-form input[type="text"],
     .auth-form input[type="password"] {
       width: 100%;
-      padding: 15px 20px; /* Aumentado */
-      padding-left: 48px; /* Espaço para ícone à esquerda */
-      padding-right: 48px; /* Espaço para ícone de ver senha à direita */
+      padding: 15px 20px; 
+      padding-left: 48px; 
+      padding-right: 48px; 
       border: 1px solid var(--border-color-subtle-dark);
       border-radius: var(--border-radius-sm);
-      font-size: 1.05rem; /* Aumentado */
+      font-size: 1.05rem; 
       background-color: var(--bg-medium-dark);
       color: var(--text-primary-light);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -75,7 +75,7 @@
       box-shadow: 0 0 0 2px var(--bg-dark), 0 0 0 4px var(--accent-earthy-orange-hover);
     }
 
-    /* Ícone à esquerda do input */
+    
     .auth-form .input-group .input-icon-left {
         position: absolute;
         left: 15px;
@@ -83,10 +83,10 @@
         transform: translateY(-50%);
         color: var(--text-muted-light);
         font-size: 1.1rem;
-        pointer-events: none; /* Para não interferir com o clique no input */
+        pointer-events: none; 
     }
     
-    /* Ícone de "ver senha" à direita do input */
+    
     .auth-form .input-group .toggle-password {
         position: absolute;
         right: 15px;
@@ -149,9 +149,9 @@
         margin-bottom: 20px;
         text-align: center;
         font-size: 0.9rem;
-        display: none; /* Começa escondido */
+        display: none; 
     }
-     .error-message:not(:empty) { /* Mostra se não estiver vazio */
+     .error-message:not(:empty) { 
         display: block;
     }
     #registerSuccess {
@@ -162,39 +162,38 @@
     .auth-form input[type="text"],
 .auth-form input[type="password"] {
   width: 100%;
-  /* Aumentar o padding vertical afeta a altura total do campo */
-  padding: 18px 20px; /* Padding vertical aumentado para 18px */
-  padding-left: 50px; /* Espaço para ícone à esquerda (ajuste se necessário) */
-  padding-right: 50px; /* Espaço para ícone de ver senha à direita (ajuste se necessário) */
+ 
+  padding: 18px 20px; 
+  padding-left: 50px; 
+  padding-right: 50px; 
   border: 1px solid var(--border-color-subtle-dark);
   border-radius: var(--border-radius-sm);
-  font-size: 1.1rem; /* Tamanho da fonte DENTRO do input aumentado */
-  line-height: 1.4; /* Ajuda na altura do texto dentro do campo */
+  font-size: 1.1rem; 
+  line-height: 1.4; 
   background-color: var(--bg-medium-dark);
   color: var(--text-primary-light);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  box-sizing: border-box; /* Importante para que padding não aumente a largura/altura além do esperado */
-  /* Se o padding não der altura suficiente, você pode tentar definir uma altura mínima: */
-  /* min-height: 50px; */ /* Exemplo, ajuste conforme necessário */
+  box-sizing: border-box; 
+
 }
 
-/* Ajuste na posição dos ícones se necessário, devido ao aumento do padding/altura */
+
 .auth-form .input-group .input-icon-left {
     position: absolute;
-    left: 18px; /* Ajuste a posição se necessário */
+    left: 18px; 
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted-light);
-    font-size: 1.2rem; /* Pode aumentar um pouco o ícone também */
+    font-size: 1.2rem; 
     pointer-events: none;
 }
 
 .auth-form .input-group .toggle-password {
     position: absolute;
-    right: 18px; /* Ajuste a posição se necessário */
+    right: 18px; 
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted-light);
     cursor: pointer;
-    font-size: 1.3rem; /* Pode aumentar um pouco o ícone também */
+    font-size: 1.3rem; 
 }
