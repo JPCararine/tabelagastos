@@ -1,9 +1,8 @@
 {
   "name": "app-financeiro-fullstack",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "script.js",
   "scripts": {
-    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,7 +14,6 @@
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "serverless-http": "^3.2.0",  
     "sqlite3": "^5.1.7"
   }
 }

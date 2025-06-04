@@ -1,11 +1,13 @@
-// site/script.js
+// script.js
 
 // --- Variáveis Globais & Constantes ---
-let allExpenses = []; // Armazena todas as despesas do usuário
-let fixedExpenseTemplates = []; // Modelos para despesas fixas
-const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-let activeFilterMonth = new Date().getMonth(); // Mês atual como padrão (0-11)
-const currentYear = new Date().getFullYear(); // Ano atual para filtragem
+let gastos = []; // Todas as despesas do usuário (variáveis e fixas repassadas)
+let gastosFixosTemplates = []; // Modelos para despesas fixas
+const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const anoAtual = new Date().getFullYear();
+let mesFiltroAtivo = new Date().getMonth();
+
+const API_BASE_URL = 'http://localhost:3000'; // Mantido por clareza, mas não estritamente necessário se servido da mesma origem
 
 // --- Elementos DOM ---
 const navInicioLink = document.getElementById('navInicio');
@@ -16,38 +18,32 @@ const goToGastosBtn = document.getElementById('goToGastosBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const usernameDisplay = document.getElementById('usernameDisplay');
 
-// Formulário e lista de modelos de gastos fixos
 const formGastoFixo = document.getElementById('formGastoFixo');
-const descriptionFixoInput = document.getElementById('descriptionFixo'); // Renomeado
-const valueFixoInput = document.getElementById('valueFixo'); // Renomeado
+const descricaoFixoInput = document.getElementById('descricaoFixo');
+const valorFixoInput = document.getElementById('valorFixo');
 const listaGastosFixosUl = document.getElementById('listaGastosFixos');
 const btnRepassarFixos = document.getElementById('btnRepassarFixos');
 const emptyFixedListMsg = document.querySelector('.empty-fixed-list');
 
-// Formulário de gastos variáveis
 const formGastoVariavel = document.getElementById('formGastoVariavel');
-const descriptionVariavelInput = document.getElementById('descriptionVariavel'); // Renomeado
-const valueVariavelInput = document.getElementById('valueVariavel'); // Renomeado
-const dateVariavelInput = document.getElementById('dateVariavel'); // Renomeado
+const descricaoInput = document.getElementById('descricao');
+const valorInput = document.getElementById('valor');
+const dataInput = document.getElementById('data');
 
-const expensesTableBody = document.querySelector('#tabelaGastos tbody');
-const totalMesDisplay = document.getElementById('totalMes'); // Renomeado
-const monthFilterContainer = document.querySelector('.month-container');
 const btnLimparTodosGastosUsuario = document.getElementById('btnLimparTodosGastosUsuario');
-
 
 // --- Helper da API ---
 async function fetchAPI(endpoint, method = 'GET', body = null) {
     const token = localStorage.getItem('authToken');
     if (!token) {
-        window.location.href = 'login.html'; // Redireciona se não houver token
-        return Promise.reject(new Error("Token não encontrado. Redirecionando para login.")); // Rejeita a promise
+        window.location.href = 'login.html';
+        return;
     }
 
-    const headers = { 'Authorization': `Bearer ${token}` };
-    if (method !== 'GET' && method !== 'DELETE') { // Para POST, PUT, etc.
-        headers['Content-Type'] = 'application/json';
-    }
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
 
     const config = { method, headers };
     if (body) {
@@ -55,27 +51,27 @@ async function fetchAPI(endpoint, method = 'GET', body = null) {
     }
 
     try {
-        const response = await fetch(endpoint, config); // Usando caminhos relativos
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config); // Usando API_BASE_URL
         if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('authToken');
             localStorage.removeItem('username');
             window.location.href = 'login.html';
-            return Promise.reject(new Error("Autenticação falhou. Redirecionando para login."));
+            return;
         }
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: `Erro ${response.status}: ${response.statusText}` }));
-            // console.error('Erro na API:', response.status, errorData);
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            console.error('Erro na API:', response.status, errorData);
             alert(`Erro na API: ${errorData.message || response.statusText}`);
-            return null; // Ou Promise.reject(errorData) se preferir tratar erros mais explicitamente
+            return null;
         }
-        if (response.status === 204) { // No Content
-             return { success: true, message: "Operação bem-sucedida, sem conteúdo de resposta."};
+        if (response.status === 204) {
+             return { success: true, message: "Operação bem-sucedida, sem conteúdo."};
         }
         return response.json();
     } catch (error) {
-        // console.error('Erro de rede ou fetch:', error);
-        alert('Erro de comunicação com o servidor. Verifique sua conexão.');
-        return null; // Ou Promise.reject(error)
+        console.error('Erro de rede ou fetch:', error);
+        alert('Erro de comunicação com o servidor.');
+        return null;
     }
 }
 
@@ -84,25 +80,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('authToken');
     const username = localStorage.getItem('username');
 
-    // Lógica de redirecionamento
-    if (!token && !window.location.pathname.endsWith('/login.html')) {
+    if (!token && window.location.pathname !== '/login.html') { // Não redireciona se já estiver na login.html
         window.location.href = 'login.html';
         return;
     }
-    if (token && window.location.pathname.endsWith('/login.html')) {
-        window.location.href = 'index.html'; // Ou '/' se seu servidor estiver configurado assim
+     if (token && window.location.pathname === '/login.html'){ // Se tem token e está no login, vai pro index
+        window.location.href = 'index.html';
         return;
     }
 
-    // Se estiver na página principal (index.html)
-    if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/site/') ) {
-        if (usernameDisplay && username) {
-            usernameDisplay.textContent = `Olá, ${username}!`;
-        }
 
-        setupEventListeners();
-        showView('viewInicio'); // Começa na view de início
+    if (usernameDisplay && username) {
+        usernameDisplay.textContent = `Olá, ${username}!`;
+    }
+
+    // Só executa o resto se não for a página de login
+    if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+        mostrarView('viewInicio');
         await loadInitialData();
+
+        if (formGastoFixo) formGastoFixo.addEventListener('submit', (e) => { e.preventDefault(); adicionarGastoFixoTemplate(); });
+        if (formGastoVariavel) formGastoVariavel.addEventListener('submit', (e) => { e.preventDefault(); adicionarGasto(); });
+        if (btnRepassarFixos) btnRepassarFixos.addEventListener('click', repassarGastosFixosParaMeses);
+        if (btnLimparTodosGastosUsuario) btnLimparTodosGastosUsuario.addEventListener('click', limparTodosGastosDoUsuario);
+
+        document.querySelectorAll('.month').forEach((monthElement) => {
+            monthElement.addEventListener('click', function() {
+                mesFiltroAtivo = parseInt(this.getAttribute('data-month'));
+                renderizarGastosETotal();
+            });
+        });
+
+        navInicioLink?.addEventListener('click', (e) => { e.preventDefault(); mostrarView('viewInicio'); });
+        navControleGastosLink?.addEventListener('click', (e) => { e.preventDefault(); mostrarView('viewControleGastos'); });
+        goToGastosBtn?.addEventListener('click', () => mostrarView('viewControleGastos'));
     }
 
     if (logoutBtn) {
@@ -114,46 +125,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-function setupEventListeners() {
-    navInicioLink?.addEventListener('click', (e) => { e.preventDefault(); showView('viewInicio'); });
-    navControleGastosLink?.addEventListener('click', (e) => { e.preventDefault(); showView('viewControleGastos'); });
-    goToGastosBtn?.addEventListener('click', () => showView('viewControleGastos'));
-
-    formGastoFixo?.addEventListener('submit', handleAddFixedExpenseTemplate);
-    formGastoVariavel?.addEventListener('submit', handleAddVariableExpense);
-    btnRepassarFixos?.addEventListener('click', handleRepassFixedExpenses);
-    btnLimparTodosGastosUsuario?.addEventListener('click', handleClearAllUserExpenses);
-
-    monthFilterContainer?.querySelectorAll('.month').forEach((monthElement) => {
-        monthElement.addEventListener('click', function() {
-            activeFilterMonth = parseInt(this.getAttribute('data-month'));
-            renderExpensesAndTotal();
-        });
-    });
-}
-
 async function loadInitialData() {
-    try {
-        const [fixedTemplatesData, expensesData] = await Promise.all([
-            fetchAPI('/api/fixed-expenses-templates'),
-            fetchAPI('/api/expenses')
-        ]);
+    const [fixedTemplatesData, expensesData] = await Promise.all([
+        fetchAPI('/api/fixed-expenses-templates'),
+        fetchAPI('/api/expenses')
+    ]);
 
-        if (fixedTemplatesData) {
-            fixedExpenseTemplates = fixedTemplatesData;
-            renderFixedExpenseTemplates();
-        }
-        if (expensesData) {
-            allExpenses = expensesData; // API já retorna 'value' e 'date'
-            renderExpensesAndTotal();
-        }
-    } catch (error) {
-        // O fetchAPI já trata e exibe alertas, mas pode logar aqui se necessário
-        // console.error("Erro ao carregar dados iniciais:", error);
+    if (fixedTemplatesData) {
+        gastosFixosTemplates = fixedTemplatesData;
+        renderizarGastosFixosTemplates();
+    }
+    if (expensesData) {
+        gastos = expensesData.map(g => ({...g, valor: g.value }));
+        renderizarGastosETotal();
     }
 }
 
-function showView(viewIdToShow) {
+function mostrarView(viewIdToShow) {
   document.querySelectorAll('.view-container').forEach(view => view.classList.remove('active-view'));
   document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
 
@@ -165,287 +153,456 @@ function showView(viewIdToShow) {
   }
 }
 
-// --- Lógica de Modelos de Gastos Fixos ---
-function renderFixedExpenseTemplates() {
+function renderizarGastosFixosTemplates() {
   if (!listaGastosFixosUl || !emptyFixedListMsg) return;
-
   listaGastosFixosUl.innerHTML = '';
-  if (fixedExpenseTemplates.length === 0) {
+  if (gastosFixosTemplates.length === 0) {
     emptyFixedListMsg.style.display = 'block';
     listaGastosFixosUl.style.display = 'none';
   } else {
     emptyFixedListMsg.style.display = 'none';
     listaGastosFixosUl.style.display = 'block';
-    fixedExpenseTemplates.forEach((template) => {
+    gastosFixosTemplates.forEach((gasto) => {
       const li = document.createElement('li');
       li.innerHTML = `
-        <span class="description-fixo">${template.description}</span>
-        <span class="value-fixo">R$ ${parseFloat(template.value).toFixed(2)}</span>
-        <button class="remove-fixo-btn" data-id="${template.id}">Remover</button>
+        <span class="descricao-fixo">${gasto.description}</span>
+        <span class="valor-fixo">R$ ${parseFloat(gasto.value).toFixed(2)}</span>
+        <button class="remover-fixo" onclick="removerGastoFixoTemplate(${gasto.id})">Remover</button>
       `;
       listaGastosFixosUl.appendChild(li);
     });
-    // Adicionar event listeners aos novos botões de remover
-    listaGastosFixosUl.querySelectorAll('.remove-fixo-btn').forEach(btn => {
-        btn.addEventListener('click', () => handleRemoveFixedExpenseTemplate(btn.dataset.id));
-    });
   }
 }
 
-async function handleAddFixedExpenseTemplate(event) {
-  event.preventDefault();
-  if (!descriptionFixoInput || !valueFixoInput) return;
+async function adicionarGastoFixoTemplate() {
+  if (!descricaoFixoInput || !valorFixoInput) return;
+  const descricao = descricaoFixoInput.value.trim();
+  const valor = parseFloat(valorFixoInput.value);
 
-  const description = descriptionFixoInput.value.trim();
-  const value = parseFloat(valueFixoInput.value);
-
-  if (!description || isNaN(value) || value <= 0) {
-    alert("Preencha a descrição e um valor positivo para o modelo de gasto fixo.");
+  if (!descricao || isNaN(valor) || valor <= 0) {
+    alert("Preencha a descrição e um valor válido para o modelo de gasto fixo.");
     return;
   }
 
-  const newTemplate = await fetchAPI('/api/fixed-expenses-templates', 'POST', { description, value });
-  if (newTemplate) {
-    fixedExpenseTemplates.push(newTemplate);
-    descriptionFixoInput.value = '';
-    valueFixoInput.value = '';
-    renderFixedExpenseTemplates();
+  const novoTemplate = await fetchAPI('/api/fixed-expenses-templates', 'POST', { descricao, valor });
+  if (novoTemplate) {
+    gastosFixosTemplates.push(novoTemplate);
+    descricaoFixoInput.value = '';
+    valorFixoInput.value = '';
+    renderizarGastosFixosTemplates();
   }
 }
 
-async function handleRemoveFixedExpenseTemplate(templateId) {
+async function removerGastoFixoTemplate(templateId) {
+  
+  console.log("Frontend: Tentando remover modelo de gasto fixo com ID:", templateId);
   if (confirm("Tem certeza que deseja remover este modelo de gasto fixo? Isso não removerá gastos já repassados.")) {
     const result = await fetchAPI(`/api/fixed-expenses-templates/${templateId}`, 'DELETE');
     if (result && result.success) {
-      fixedExpenseTemplates = fixedExpenseTemplates.filter(t => t.id !== parseInt(templateId));
-      renderFixedExpenseTemplates();
+      gastosFixosTemplates = gastosFixosTemplates.filter(t => t.id !== templateId);
+      renderizarGastosFixosTemplates();
     }
+   
   }
 }
 
-async function handleRepassFixedExpenses() {
-  if (fixedExpenseTemplates.length === 0) {
+async function repassarGastosFixosParaMeses() {
+  if (gastosFixosTemplates.length === 0) {
     alert("Nenhum modelo de gasto fixo cadastrado para repassar.");
     return;
   }
-  if (confirm(`Repassar modelos fixos para todos os meses de ${currentYear}? Despesas já existentes para o mês/modelo não serão duplicadas.`)) {
-    const result = await fetchAPI('/api/expenses/repass-fixed', 'POST');
-    if (result) {
-        alert(result.message || "Gastos fixos repassados.");
-        const expensesData = await fetchAPI('/api/expenses'); // Recarrega todas as despesas
-        if (expensesData) {
-            allExpenses = expensesData;
-            renderExpensesAndTotal();
-        }
+  const result = await fetchAPI('/api/expenses/repass-fixed', 'POST');
+  if (result) {
+    alert(result.message || "Gastos fixos repassados.");
+    const expensesData = await fetchAPI('/api/expenses');
+    if (expensesData) {
+         gastos = expensesData.map(g => ({...g, valor: g.value }));
+         renderizarGastosETotal();
     }
   }
 }
 
-// --- Lógica de Gastos (Variáveis e Fixos Repassados) ---
-function formatDateForDisplay(isoDate) {
+function formatarData(isoDate) {
   if (!isoDate) return '';
-  // Assume que isoDate está no formato AAAA-MM-DD
   const parts = isoDate.split('-');
-  return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoDate;
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return isoDate;
 }
 
-function updateClearAllButtonVisibility() {
+function atualizarVisibilidadeBotaoLimpar() {
   if (!btnLimparTodosGastosUsuario) return;
-  btnLimparTodosGastosUsuario.style.display = allExpenses.length > 0 ? 'block' : 'none';
+  if (gastos.length > 0) {
+    btnLimparTodosGastosUsuario.style.display = 'block';
+  } else {
+    btnLimparTodosGastosUsuario.style.display = 'none';
+  }
 }
 
-async function handleAddVariableExpense(event) {
-  event.preventDefault();
-  if (!descriptionVariavelInput || !valueVariavelInput || !dateVariavelInput) return;
+// Em site/script.js
 
-  const description = descriptionVariavelInput.value.trim();
-  const value = parseFloat(valueVariavelInput.value);
-  const date = dateVariavelInput.value; // Formato AAAA-MM-DD
+// ... (outras partes do script.js) ...
 
-  if (!description || isNaN(value) || value <= 0 || !date) {
+// Em site/script.js
+
+// ... (início do script.js, incluindo variáveis globais e constantes como API_BASE_URL, meses, anoAtual, mesFiltroAtivo, etc.) ...
+
+async function adicionarGasto() {
+  if (!descricaoInput || !valorInput || !dataInput) {
+    console.error("Inputs do formulário de gastos variáveis não encontrados.");
+    return;
+  }
+  const descricao = descricaoInput.value.trim();
+  const valor = parseFloat(valorInput.value);
+  const dataValor = dataInput.value;
+
+  if (!descricao || isNaN(valor) || valor <= 0 || !dataValor) {
     alert("Preencha todos os campos do gasto variável corretamente (descrição, valor positivo e data).");
     return;
   }
-  // Validação simples de formato de data
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    alert("Formato de data inválido. Use AAAA-MM-DD.");
+  const testDate = new Date(dataValor + 'T00:00:00');
+  if (!dataValor.match(/^\d{4}-\d{2}-\d{2}$/) || !(testDate && testDate.toISOString().slice(0,10) === dataValor)) {
+    alert("Formato de data inválido ou data inexistente. Use AAAA-MM-DD.");
     return;
   }
 
-  const newExpense = await fetchAPI('/api/expenses', 'POST', { description, value, date });
-  if (newExpense) {
-    allExpenses.push(newExpense); // API retorna o objeto com 'id', 'value', 'date', etc.
-    descriptionVariavelInput.value = '';
-    valueVariavelInput.value = '';
-    dateVariavelInput.value = ''; // Limpa o campo de data
-    renderExpensesAndTotal();
+  const novoGasto = await fetchAPI('/api/expenses', 'POST', { descricao, valor, data: dataValor });
+  console.log("Gasto retornado pela API:", novoGasto);
+
+  if (novoGasto) {
+    gastos.push({...novoGasto, valor: novoGasto.value });
+    console.log("Array gastos após push:", JSON.parse(JSON.stringify(gastos)));
+    
+    descricaoInput.value = '';
+    valorInput.value = '';
+    dataInput.value = '';
+    
+    console.log("Chamando renderizarGastosETotal após adicionar gasto");
+    renderizarGastosETotal();
   }
 }
 
-function renderExpensesAndTotal() {
-  if (!expensesTableBody || !totalMesDisplay || !monthFilterContainer) {
-    // console.warn("Elementos essenciais para renderização de gastos não encontrados.");
+// Em site/script.js
+
+// ... (início do script.js, incluindo variáveis globais e constantes como API_BASE_URL, meses, anoAtual, mesFiltroAtivo, etc.) ...
+
+async function adicionarGasto() {
+  if (!descricaoInput || !valorInput || !dataInput) {
+    console.error("Inputs do formulário de gastos variáveis não encontrados.");
     return;
   }
-  expensesTableBody.innerHTML = '';
-  let monthTotal = 0;
+  const descricao = descricaoInput.value.trim();
+  const valor = parseFloat(valorInput.value);
+  const dataValor = dataInput.value;
 
-  // Ordena por data (mais recente primeiro) e depois por ID (para consistência se houver datas iguais)
-  const sortedExpenses = [...allExpenses].sort((a, b) => {
-    const dateComparison = new Date(b.date) - new Date(a.date);
-    if (dateComparison !== 0) return dateComparison;
-    return b.id - a.id; // Mais recente ID primeiro se datas iguais
-  });
+  if (!descricao || isNaN(valor) || valor <= 0 || !dataValor) {
+    alert("Preencha todos os campos do gasto variável corretamente (descrição, valor positivo e data).");
+    return;
+  }
+  const testDate = new Date(dataValor + 'T00:00:00');
+  if (!dataValor.match(/^\d{4}-\d{2}-\d{2}$/) || !(testDate && testDate.toISOString().slice(0,10) === dataValor)) {
+    alert("Formato de data inválido ou data inexistente. Use AAAA-MM-DD.");
+    return;
+  }
 
-  sortedExpenses.forEach((expense) => {
-    if (!expense.date) {
-        // console.warn("Gasto sem data encontrado:", expense);
+  const novoGasto = await fetchAPI('/api/expenses', 'POST', { descricao, valor, data: dataValor });
+  console.log("Gasto retornado pela API:", novoGasto);
+
+  if (novoGasto) {
+    // Padroniza o objeto para ter 'valor' (usado pelo frontend) e 'date'
+    // e garante que todas as outras propriedades da API sejam mantidas.
+    const gastoParaArray = {
+        id: novoGasto.id,
+        user_id: novoGasto.user_id,
+        description: novoGasto.description,
+        value: novoGasto.value, // Mantém o 'value' original da API
+        valor: novoGasto.value, // Adiciona 'valor' para consistência com a renderização
+        date: novoGasto.data     // Garante que 'date' está aqui
+    };
+    gastos.push(gastoParaArray);
+    console.log("Array gastos após push:", JSON.parse(JSON.stringify(gastos)));
+
+    descricaoInput.value = '';
+    valorInput.value = '';
+    dataInput.value = '';
+    
+    console.log("Chamando renderizarGastosETotal após adicionar gasto");
+    renderizarGastosETotal();
+  }
+}
+
+function renderizarGastosETotal() {
+  console.log("Dentro de renderizarGastosETotal. Mês Filtro Ativo:", mesFiltroAtivo, "Ano Atual:", anoAtual);
+
+  const tbody = document.querySelector('#tabelaGastos tbody');
+  if (!tbody) {
+      console.warn("Elemento tbody da tabela de gastos não encontrado.");
+      return;
+  }
+  tbody.innerHTML = '';
+  let totalMes = 0;
+  let countGastosNoMesAtual = 0;
+
+  const gastosOrdenados = [...gastos].sort((a, b) => new Date(a.date) - new Date(b.date));
+  console.log("Gastos ordenados para renderização:", JSON.parse(JSON.stringify(gastosOrdenados)));
+
+  gastosOrdenados.forEach((g) => {
+    console.log("Objeto g no início do forEach:", JSON.parse(JSON.stringify(g))); // LOG A
+    console.log("Tipo de g.date:", typeof g.date, "Valor de g.date:", g.date); // LOG B
+    console.log("Condição '!g.date' resulta em:", !g.date); // LOG C
+    
+    // Verifica explicitamente se g.date é uma string e não está vazia
+    if (typeof g.date !== 'string' || g.date.trim() === '') {
+        console.warn("Gasto com 'date' inválida (não é string ou está vazia):", g);
+        return; 
+    }
+    const dataGasto = new Date(g.date + 'T00:00:00');
+
+    // Verifica se a dataGasto é válida após a conversão
+    if (isNaN(dataGasto.getTime())) {
+        console.warn("Objeto Date inválido criado a partir de g.date:", g.date, "Gasto:", g);
         return;
     }
-    const expenseDate = new Date(expense.date + 'T00:00:00'); // Adiciona T00:00:00 para evitar problemas de fuso
 
-    if (expenseDate.getMonth() === activeFilterMonth && expenseDate.getFullYear() === currentYear) {
+    console.log(
+        "Verificando gasto:", g.description,
+        "Data do gasto:", g.date,
+        "Objeto Date:", dataGasto.toISOString(),
+        "Mês do gasto (0-11):", dataGasto.getMonth(),
+        "Ano do gasto:", dataGasto.getFullYear(),
+        "Condição do Mês:", dataGasto.getMonth() === parseInt(mesFiltroAtivo),
+        "Condição do Ano:", dataGasto.getFullYear() === anoAtual,
+        "Passou no filtro?:", (dataGasto.getMonth() === parseInt(mesFiltroAtivo) && dataGasto.getFullYear() === anoAtual)
+    );
+
+    if (dataGasto.getMonth() === parseInt(mesFiltroAtivo) && dataGasto.getFullYear() === anoAtual) {
+      countGastosNoMesAtual++;
       const tr = document.createElement('tr');
-      tr.setAttribute('data-id', expense.id);
+      tr.setAttribute('data-id', g.id);
 
-      // Escapar aspas simples para o onclick
-      const escapedDescription = expense.description.replace(/'/g, "\\'");
+      const descricaoEscapada = g.description.replace(/'/g, "\\'");
 
       tr.innerHTML = `
-        <td class="description-cell">
-          <span>${expense.description}</span>
-          <button class="edit-btn" data-field="description" data-current-value="${escapedDescription}">
+        <td class="descricao">
+          <span>${g.description}</span>
+          <button class="edit-btn" onclick="editarCampo(${g.id}, 'descricao', '${descricaoEscapada}')">
             <i class="fas fa-edit"></i>
           </button>
         </td>
-        <td class="value-cell">
-          <span>R$ ${parseFloat(expense.value).toFixed(2)}</span>
-          <button class="edit-btn" data-field="value" data-current-value="${expense.value}">
+        <td class="valor">
+          <span>R$ ${g.valor.toFixed(2)}</span>
+          <button class="edit-btn" onclick="editarCampo(${g.id}, 'valor', ${g.valor})">
             <i class="fas fa-edit"></i>
           </button>
         </td>
-        <td class="date-cell">
-          <span>${formatDateForDisplay(expense.date)}</span>
-          <button class="edit-btn" data-field="date" data-current-value="${expense.date}">
+        <td class="data">
+          <span>${formatarData(g.date)}</span>
+          <button class="edit-btn" onclick="editarCampo(${g.id}, 'data', '${g.date}')">
             <i class="fas fa-edit"></i>
           </button>
         </td>
         <td>
-          <button class="remove-btn" data-id="${expense.id}"><i class="fas fa-trash-alt"></i></button>
+          <button class="remover" onclick="removerGasto(${g.id})">Remover</button>
         </td>
       `;
-      expensesTableBody.appendChild(tr);
-      monthTotal += parseFloat(expense.value);
+      tbody.appendChild(tr);
+      console.log("Linha TR adicionada ao tbody. Conteúdo do tbody:", tbody.innerHTML); 
     }
   });
 
-  totalMesDisplay.innerText = `Total de ${months[activeFilterMonth]}: R$ ${monthTotal.toFixed(2)}`;
+  console.log("Total de gastos renderizados para o mês:", countGastosNoMesAtual);
 
-  // Atualiza a classe 'active' nos botões de mês
-  monthFilterContainer.querySelectorAll('.month').forEach(monthEl => {
-    monthEl.classList.toggle('active', parseInt(monthEl.getAttribute('data-month')) === activeFilterMonth);
+  const mesSelecionadoNome = meses[parseInt(mesFiltroAtivo)];
+  const totalElement = document.getElementById('total');
+  if (totalElement) {
+      totalElement.innerText = `Total de ${mesSelecionadoNome}: R$ ${totalMes.toFixed(2)}`;
+  }
+
+  document.querySelectorAll('.month').forEach(monthEl => {
+    if (parseInt(monthEl.getAttribute('data-month')) === parseInt(mesFiltroAtivo)) {
+      monthEl.classList.add('active');
+    } else {
+      monthEl.classList.remove('active');
+    }
+  });
+  atualizarVisibilidadeBotaoLimpar();
+}
+
+function renderizarGastosETotal() {
+  console.log("Dentro de renderizarGastosETotal. Mês Filtro Ativo:", mesFiltroAtivo, "Ano Atual:", anoAtual); // LOG 1
+
+  const tbody = document.querySelector('#tabelaGastos tbody');
+  if (!tbody) {
+      console.warn("Elemento tbody da tabela de gastos não encontrado.");
+      return;
+  }
+  tbody.innerHTML = '';
+  let totalMes = 0;
+  let countGastosNoMesAtual = 0;
+
+  // Copia do array gastos para ordenação, para não modificar o original diretamente se não necessário
+  const gastosOrdenados = [...gastos].sort((a, b) => new Date(a.date) - new Date(b.date));
+  console.log("Gastos ordenados para renderização:", JSON.parse(JSON.stringify(gastosOrdenados))); // LOG 2
+
+  gastosOrdenados.forEach((g) => {
+    // Certifique-se de que g.date existe e é uma string de data válida
+    if (!g.date) {
+        console.warn("Gasto sem data encontrado:", g);
+        return; // Pula este gasto se não tiver data
+    }
+    // Adiciona 'T00:00:00' para evitar problemas de fuso horário ao converter para objeto Date só com a data.
+    // Isso garante que a data seja interpretada como o início do dia no fuso horário local.
+    const dataGasto = new Date(g.date + 'T00:00:00');
+
+    // LOGS IMPORTANTES PARA A CONDIÇÃO DE FILTRO:
+    console.log(
+        "Verificando gasto:", g.description,
+        "Data do gasto:", g.date,
+        "Objeto Date:", dataGasto.toISOString(),
+        "Mês do gasto (0-11):", dataGasto.getMonth(),
+        "Ano do gasto:", dataGasto.getFullYear(),
+        "Condição do Mês:", dataGasto.getMonth() === parseInt(mesFiltroAtivo), // parseInt aqui é uma boa prática
+        "Condição do Ano:", dataGasto.getFullYear() === anoAtual,
+        "Passou no filtro?:", (dataGasto.getMonth() === parseInt(mesFiltroAtivo) && dataGasto.getFullYear() === anoAtual)
+    ); // LOG 3
+
+    if (dataGasto && dataGasto.getMonth() === parseInt(mesFiltroAtivo) && dataGasto.getFullYear() === anoAtual) {
+      countGastosNoMesAtual++;
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-id', g.id);
+
+      const descricaoEscapada = g.description.replace(/'/g, "\\'");
+
+      tr.innerHTML = `
+        <td class="descricao">
+          <span>${g.description}</span>
+          <button class="edit-btn" onclick="editarCampo(${g.id}, 'descricao', '${descricaoEscapada}')">
+            <i class="fas fa-edit"></i>
+          </button>
+        </td>
+        <td class="valor">
+          <span>R$ ${g.valor.toFixed(2)}</span>
+          <button class="edit-btn" onclick="editarCampo(${g.id}, 'valor', ${g.valor})">
+            <i class="fas fa-edit"></i>
+          </button>
+        </td>
+        <td class="data">
+          <span>${formatarData(g.date)}</span>
+          <button class="edit-btn" onclick="editarCampo(${g.id}, 'data', '${g.date}')">
+            <i class="fas fa-edit"></i>
+          </button>
+        </td>
+        <td>
+          <button class="remover" onclick="removerGasto(${g.id})">Remover</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+      totalMes += g.valor;
+    }
   });
 
-  updateClearAllButtonVisibility();
-  attachActionListenersToTable(); // Reatribui listeners após renderizar
+  console.log("Total de gastos renderizados para o mês:", countGastosNoMesAtual); // LOG 4
+
+  const mesSelecionadoNome = meses[parseInt(mesFiltroAtivo)]; // Garante que mesFiltroAtivo é número
+  const totalElement = document.getElementById('total');
+  if (totalElement) {
+      totalElement.innerText = `Total de ${mesSelecionadoNome}: R$ ${totalMes.toFixed(2)}`;
+  }
+
+  document.querySelectorAll('.month').forEach(monthEl => {
+    if (parseInt(monthEl.getAttribute('data-month')) === parseInt(mesFiltroAtivo)) {
+      monthEl.classList.add('active');
+    } else {
+      monthEl.classList.remove('active');
+    }
+  });
+  atualizarVisibilidadeBotaoLimpar();
 }
 
-function attachActionListenersToTable() {
-    expensesTableBody.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const row = e.target.closest('tr');
-            const expenseId = parseInt(row.dataset.id);
-            const field = e.currentTarget.dataset.field;
-            const currentValue = e.currentTarget.dataset.currentValue;
-            handleEditExpenseField(expenseId, field, currentValue);
-        });
-    });
-    expensesTableBody.querySelectorAll('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const expenseId = parseInt(e.currentTarget.dataset.id);
-            handleRemoveExpense(expenseId);
-        });
-    });
-}
+// ... (resto do script.js) ...
 
-
-async function handleEditExpenseField(expenseId, field, currentValue) {
-    const expense = allExpenses.find(exp => exp.id === expenseId);
-    if (!expense) {
+async function editarCampo(gastoId, campo, valorAtual) {
+   console.log("Frontend: Tentando editar campo para gastoId:", gastoId, "Campo:", campo, "Valor Atual:", valorAtual);
+    const gasto = gastos.find(g => g.id === gastoId);
+    if (!gasto) {
         alert("Gasto não encontrado para edição.");
         return;
     }
 
-    let newValuePrompt;
-    let updatedData = { description: expense.description, value: expense.value, date: expense.date }; // Nomes dos campos como na API
+    let novoValorPrompt; // Renomeado para evitar conflito com a variável 'valor' do escopo externo
+    let updatedData = { description: gasto.description, value: gasto.valor, date: gasto.date };
 
-    if (field === 'description') {
-        newValuePrompt = prompt("Edite a descrição:", currentValue);
-        if (newValuePrompt === null) return; // Usuário cancelou
-        if (newValuePrompt.trim() === '') {
+    if (campo === 'descricao') {
+        novoValorPrompt = prompt("Edite a descrição:", valorAtual);
+        if (novoValorPrompt !== null && novoValorPrompt.trim() !== '') {
+            updatedData.description = novoValorPrompt.trim();
+        } else if (novoValorPrompt !== null) {
             alert("Descrição não pode ser vazia."); return;
-        }
-        updatedData.description = newValuePrompt.trim();
-    } else if (field === 'value') {
-        const currentValueFormatted = parseFloat(currentValue).toFixed(2).replace(".", ",");
-        newValuePrompt = prompt("Edite o valor (R$):", currentValueFormatted);
-        if (newValuePrompt === null) return;
-        const valueFloat = parseFloat(newValuePrompt.replace(",", "."));
-        if (isNaN(valueFloat) || valueFloat < 0) { // Permite 0
-            alert("Valor inválido. Insira um número não negativo."); return;
-        }
-        updatedData.value = valueFloat;
-    } else if (field === 'date') {
-        newValuePrompt = prompt("Edite a data (AAAA-MM-DD):", currentValue);
-        if (newValuePrompt === null) return;
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(newValuePrompt)) {
+        } else return;
+    } else if (campo === 'valor') {
+        const valorAtualFormatado = parseFloat(valorAtual).toFixed(2).replace(".", ",");
+        novoValorPrompt = prompt("Edite o valor (R$):", valorAtualFormatado);
+        if (novoValorPrompt !== null) {
+            const valorFloat = parseFloat(novoValorPrompt.replace(",", "."));
+            if (!isNaN(valorFloat) && valorFloat >= 0) {
+                updatedData.value = valorFloat;
+            } else {
+                alert("Valor inválido."); return;
+            }
+        } else return;
+    } else if (campo === 'data') {
+        novoValorPrompt = prompt("Edite a data (AAAA-MM-DD):", valorAtual);
+        if (novoValorPrompt !== null && /^\d{4}-\d{2}-\d{2}$/.test(novoValorPrompt)) {
+            const testDate = new Date(novoValorPrompt + 'T00:00:00');
+            if (testDate && testDate.toISOString().slice(0,10) === novoValorPrompt) {
+                 updatedData.date = novoValorPrompt;
+            } else {
+                alert("Data inválida (ex: dia ou mês inexistente). Use AAAA-MM-DD."); return;
+            }
+        } else if (novoValorPrompt !== null) {
             alert("Formato de data inválido. Use AAAA-MM-DD."); return;
-        }
-        const testDate = new Date(newValuePrompt + 'T00:00:00');
-        if (!(testDate && testDate.toISOString().slice(0,10) === newValuePrompt)) {
-            alert("Data inválida (ex: dia ou mês inexistente). Use AAAA-MM-DD."); return;
-        }
-        updatedData.date = newValuePrompt;
+        } else return;
     } else {
-        return; // Campo desconhecido
+        return;
     }
 
-    const result = await fetchAPI(`/api/expenses/${expenseId}`, 'PUT', updatedData);
-    if (result && result.success) { // Verifica se a API retornou sucesso
-        const expenseIndex = allExpenses.findIndex(exp => exp.id === expenseId);
-        if (expenseIndex !== -1) {
-            // Atualiza o objeto no array local com os dados enviados para a API
-            allExpenses[expenseIndex] = {
-                ...allExpenses[expenseIndex], // Mantém outras propriedades como is_from_template
+    const result = await fetchAPI(`/api/expenses/${gastoId}`, 'PUT', updatedData);
+    if (result) {
+        const gastoIndex = gastos.findIndex(g => g.id === gastoId);
+        if (gastoIndex !== -1) {
+            gastos[gastoIndex] = {
+                ...gastos[gastoIndex],
                 description: updatedData.description,
-                value: updatedData.value,
+                valor: updatedData.value,
                 date: updatedData.date,
             };
         }
-        renderExpensesAndTotal();
+        renderizarGastosETotal();
     }
 }
 
-async function handleRemoveExpense(expenseId) {
+async function removerGasto(gastoId) {
+  console.log("Frontend: Tentando remover gasto com ID:", gastoId);
   if (confirm("Tem certeza que deseja remover este gasto?")) {
-    const result = await fetchAPI(`/api/expenses/${expenseId}`, 'DELETE');
+    const result = await fetchAPI(`/api/expenses/${gastoId}`, 'DELETE');
     if (result && result.success) {
-      allExpenses = allExpenses.filter(exp => exp.id !== expenseId);
-      renderExpensesAndTotal();
+      gastos = gastos.filter(g => g.id !== gastoId);
+      renderizarGastosETotal();
     }
   }
 }
 
-async function handleClearAllUserExpenses() {
-  if (allExpenses.length === 0) {
+async function limparTodosGastosDoUsuario() {
+  if (gastos.length === 0) {
     alert("Não há gastos para limpar.");
     return;
   }
   if (confirm("Tem certeza que deseja remover TODOS os seus gastos? Esta ação não pode ser desfeita.")) {
     const result = await fetchAPI('/api/expenses/all', 'DELETE');
     if (result && result.success) {
-      allExpenses = [];
-      renderExpensesAndTotal();
+      gastos = [];
+      renderizarGastosETotal();
       alert(result.message || "Todos os seus gastos foram removidos.");
     }
   }

@@ -19,7 +19,6 @@
         <button id="logoutBtn" class="cta-button" style="padding: 8px 15px; font-size: 0.9rem; background-color: var(--accent-muted-brown);">Sair</button>
     </div>
   </nav>
-
   <div id="viewInicio" class="view-container active-view">
     <div class="container">
       <h1>Bem-vindo ao seu Gerenciador Financeiro!</h1>
@@ -38,14 +37,13 @@
       <div class="fixed-expenses-section">
         <h2>Gastos Fixos Mensais (Modelos)</h2>
         <form id="formGastoFixo">
-          <input type="text" id="descriptionFixo" name="description" placeholder="Descrição do Gasto Fixo" required />
-          <input type="number" id="valueFixo" name="value" placeholder="Valor (R$)" step="0.01" min="0.01" required />
+          <input type="text" id="descricaoFixo" placeholder="Descrição do Gasto Fixo" />
+          <input type="number" id="valorFixo" placeholder="Valor (R$)" step="0.01" />
           <button type="submit">Adicionar Modelo Fixo</button>
         </form>
         <div id="listaGastosFixosContainer">
           <h3>Lista de Modelos de Gastos Fixos:</h3>
           <ul id="listaGastosFixos">
-            <!-- Modelos serão inseridos aqui pelo JavaScript -->
           </ul>
           <p class="empty-fixed-list" style="display: none;">Nenhum modelo de gasto fixo cadastrado.</p>
         </div>
@@ -56,9 +54,9 @@
 
       <h2>Adicionar Gasto Variável</h2>
       <form id="formGastoVariavel">
-        <input type="text" id="descriptionVariavel" name="description" placeholder="Descrição do gasto" required />
-        <input type="number" id="valueVariavel" name="value" placeholder="Valor (R$)" step="0.01" min="0.01" required/>
-        <input type="date" id="dateVariavel" name="date" required />
+        <input type="text" id="descricao" placeholder="Descrição do gasto" />
+        <input type="number" id="valor" placeholder="Valor (R$)" step="0.01"/>
+        <input type="date" id="data" />
         <button type="submit">Adicionar</button>
       </form>
 
@@ -80,7 +78,7 @@
         </div>
       </div>
 
-      <div id="totalMes">Total do mês: R$ 0,00</div>
+      <div id="total">Total do mês: R$ 0,00</div>
 
       <table id="tabelaGastos">
         <thead>
